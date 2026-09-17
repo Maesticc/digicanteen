@@ -4,7 +4,7 @@ import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
 /**
- * GameFrame = jendela utama game "DigiCanteen Rush".
+ * GameFrame = jendela utama game "DigiCanteen Tycoon".
  * Jalankan class ini (method main) untuk memulai game.
  */
 public class GameFrame extends JFrame {
@@ -12,7 +12,7 @@ public class GameFrame extends JFrame {
     private static final long serialVersionUID = 1L;
 
     public GameFrame() {
-        setTitle("DigiCanteen Rush");
+        setTitle("DigiCanteen Tycoon");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
 
