@@ -98,9 +98,10 @@ public class Kitchen {
 
     public void draw(Graphics2D g) {
         // area dapur
-        g.setColor(new Color(0x2C, 0x3E, 0x50));
+        // panel kayu gelap agar senada dengan counter dapur
+        g.setColor(new Color(0x3B, 0x2A, 0x1C));
         g.fillRoundRect(x, y, width, height, 14, 14);
-        g.setColor(new Color(0x1B, 0x26, 0x31));
+        g.setColor(new Color(0x24, 0x18, 0x0E));
         g.drawRoundRect(x, y, width, height, 14, 14);
 
         // header
@@ -109,7 +110,7 @@ public class Kitchen {
         g.fillRect(x, y + 15, width, 15);
         g.setColor(Color.WHITE);
         g.setFont(new Font("SansSerif", Font.BOLD, 14));
-        g.drawString("DAPUR   " + cooking.size() + "/" + capacity + " kompor", x + 12, y + 20);
+        g.drawString("PESANAN DAPUR   " + cooking.size() + "/" + capacity, x + 12, y + 20);
 
         // daftar masakan yang sedang berjalan
         int rowY = y + 46;
