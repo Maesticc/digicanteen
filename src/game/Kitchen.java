@@ -40,6 +40,7 @@ public class Kitchen {
     private final int capacity; // jumlah kompor
     private final double cookTime;
     private final ArrayList<CookTask> cooking = new ArrayList<>();
+    private double animTime; // untuk animasi uap
 
     public Kitchen(int x, int y, int width, int height, int capacity, double cookTime) {
         this.x = x;
@@ -76,6 +77,7 @@ public class Kitchen {
      * dalam list agar GamePanel bisa menandainya "siap disajikan".
      */
     public ArrayList<Customer> update(double deltaSeconds) {
+        animTime += deltaSeconds;
         ArrayList<Customer> done = new ArrayList<>();
         Iterator<CookTask> it = cooking.iterator();
         while (it.hasNext()) {
@@ -96,28 +98,84 @@ public class Kitchen {
 
     public void draw(Graphics2D g) {
         // area dapur
-        g.setColor(new Color(0x34, 0x49, 0x5E));
-        g.fillRoundRect(x, y, width, height, 12, 12);
+        g.setColor(new Color(0x2C, 0x3E, 0x50));
+        g.fillRoundRect(x, y, width, height, 14, 14);
+        g.setColor(new Color(0x1B, 0x26, 0x31));
+        g.drawRoundRect(x, y, width, height, 14, 14);
+
+        // header
+        g.setColor(new Color(0xE6, 0x7E, 0x22));
+        g.fillRoundRect(x, y, width, 30, 14, 14);
+        g.fillRect(x, y + 15, width, 15);
         g.setColor(Color.WHITE);
         g.setFont(new Font("SansSerif", Font.BOLD, 14));
-        g.drawString("DAPUR  (" + cooking.size() + "/" + capacity + " kompor)", x + 12, y + 22);
+        g.drawString("DAPUR   " + cooking.size() + "/" + capacity + " kompor", x + 12, y + 20);
 
         // daftar masakan yang sedang berjalan
-        int rowY = y + 40;
-        g.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        int rowY = y + 46;
         for (CookTask t : cooking) {
-            g.setColor(new Color(0xEC, 0xF0, 0xF1));
-            g.drawString(t.customer.getOrder().getName(), x + 12, rowY + 12);
-
-            // progress bar masak
-            int barX = x + 150;
-            int barW = width - 170;
-            g.setColor(new Color(0x1B, 0x26, 0x31));
-            g.fillRect(barX, rowY, barW, 12);
-            g.setColor(new Color(0xE6, 0x7E, 0x22));
-            g.fillRect(barX, rowY, (int) (barW * t.progress()), 12);
-
-            rowY += 22;
+            drawCookSlot(g, rowY, t);
+            rowY += 42;
         }
+
+        // slot kompor kosong (kapasitas sisa)
+        for (int i = cooking.size(); i < capacity; i++) {
+            g.setColor(new Color(255, 255, 255, 30));
+            g.fillRoundRect(x + 12, rowY, width - 24, 34, 8, 8);
+            g.setColor(new Color(0xBD, 0xC3, 0xC7));
+            g.setFont(new Font("SansSerif", Font.ITALIC, 12));
+            g.drawString("kompor kosong", x + 24, rowY + 22);
+            rowY += 42;
+        }
+    }
+
+    private void drawCookSlot(Graphics2D g, int rowY, CookTask t) {
+        // panel slot
+        g.setColor(new Color(255, 255, 255, 22));
+        g.fillRoundRect(x + 12, rowY, width - 24, 34, 8, 8);
+
+        // panci
+        int panX = x + 22;
+        int panY = rowY + 8;
+        g.setColor(new Color(0x17, 0x20, 0x2A));
+        g.fillRoundRect(panX, panY, 26, 18, 6, 6);
+        g.setColor(new Color(0x0B, 0x0F, 0x14));
+        g.fillRect(panX - 4, panY + 4, 4, 4);
+        g.fillRect(panX + 26, panY + 4, 4, 4);
+
+        // uap mengepul (3 gumpalan naik-turun)
+        for (int s = 0; s < 3; s++) {
+            double phase = animTime * 2 + s * 1.1;
+            int sy = panY - 4 - (int) ((Math.sin(phase) + 1) * 6) - s * 4;
+            int alpha = (int) (90 - Math.abs(Math.sin(phase)) * 50);
+            g.setColor(new Color(255, 255, 255, Math.max(20, alpha)));
+            g.fillOval(panX + 6 + s * 6, sy, 8, 8);
+        }
+
+        // nama menu
+        g.setColor(new Color(0xEC, 0xF0, 0xF1));
+        g.setFont(new Font("SansSerif", Font.BOLD, 12));
+        g.drawString(t.customer.getOrder().getName(), panX + 44, rowY + 14);
+
+        // progress bar dengan kilau
+        int barX = panX + 44;
+        int barY = rowY + 20;
+        int barW = width - (barX - x) - 24;
+        g.setColor(new Color(0x12, 0x1A, 0x22));
+        g.fillRoundRect(barX, barY, barW, 10, 5, 5);
+        int fill = (int) (barW * t.progress());
+        g.setColor(new Color(0xF3, 0x9C, 0x12));
+        g.fillRoundRect(barX, barY, fill, 10, 5, 5);
+        // kilau bergerak
+        if (fill > 6) {
+            int glow = barX + (int) ((Math.sin(animTime * 4) * 0.5 + 0.5) * fill);
+            g.setColor(new Color(255, 255, 255, 120));
+            g.fillRect(Math.min(glow, barX + fill - 3), barY, 3, 10);
+        }
+
+        // persen
+        g.setColor(Color.WHITE);
+        g.setFont(new Font("SansSerif", Font.PLAIN, 10));
+        g.drawString((int) (t.progress() * 100) + "%", barX + barW + 2, barY + 9);
     }
 }
