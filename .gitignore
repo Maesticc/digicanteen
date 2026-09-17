@@ -1,0 +1,10 @@
+# Compiled class files
+bin/
+*.class
+
+# Test/build output
+bin_test/
+
+# OS files
+Thumbs.db
+.DS_Store
